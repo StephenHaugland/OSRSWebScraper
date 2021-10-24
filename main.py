@@ -4,47 +4,89 @@
 
 
 import requests
+import re
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
 
 
 def main():
+    
+    p = re.compile('^.*?(?= \()') #Regex key to pull out item
     page = requests.get('https://oldschool.runescape.wiki/w/Quests/List') # Get the main HTML page through request
     soup = BeautifulSoup(page.content, 'html.parser') # Parsing content using beautifulsoup
-
-  
     links = soup.select("#mw-content-text > div > table:nth-child(6) tbody tr td:nth-of-type(2) a") # retrieve individual quest page links
+    
     for quest in links:
         relativeURL = quest.get('href')
+       
         print(relativeURL) #display innerText of each quest name
         questURL = "https://oldschool.runescape.wiki" + relativeURL
-        questPage = requests.get(questURL)
-        soup = BeautifulSoup(questPage.content, 'html.parser')  # Parsing content using beautifulsoup
 
-        # requiredItems = soup.select("#mw-content-text > div > table.questdetails.plainlinks > tbody > tr:nth-child(6) > td > div > ul > li > a:nth-of-type(1)")
-        # for items in requiredItems:
-        #     print(items.get('title'))
-        # print(soup.select("#mw-content-text > div > table.questdetails.plainlinks > tbody > tr:nth-child(6) > td > div > ul > li > a:nth-of-type(1)::before"))
-        # if (text != "\0"):
-        #     print(text)
+        ## CHANGE BACK TO LINE ABOVE ONCE TESTING IS COMPLETE
+        # questURL = "https://oldschool.runescape.wiki" + "/w/Doric%27s_Quest"
+
+        questPage = requests.get(questURL)
+       
+        soup = BeautifulSoup(questPage.content, 'html.parser')  # Parsing content using beautifulsoup
         
         requiredItems = soup.select("#mw-content-text > div > table.questdetails.plainlinks > tbody > tr:nth-child(6) > td > div > ul > li")
+       
+        print("RequiredItems: ")
         # print(requiredItems)
 
         
         for x in range(len(requiredItems)):
-            print(requiredItems)
-            # item = "NA"
+            
             itemData = requiredItems[x]
-            print(itemData[0])
-            if (itemData[0].isdigit()):
-                quantity = itemData[0]
-                item = itemData[1].get('title')
+
+            # print("itemData: " )
+            # print(itemData)
+
+            string = itemData.get_text()
+            # print(string)
+
+            soup2 = BeautifulSoup(str(itemData), 'html.parser')  # Parsing content using beautifulsoup
+            item = soup2.find("a")['title']
+
+            # If multiple of the same item are required
+            if (containsNumber(string)):
+                quantity = string.split(' ',1)[0]
+                print("Quantity: " + quantity)
+                
+                
+                print("Item: " + item)              
+
+            # If only one of the item is required
             else:
-                quantity += 1
-                item = itemData[0].get('title')
-            print(quantity + " x " + item)
+                quantity = 1
+                print("Quantity: 1")
+                print("Item: " + item)
+
+
+
+
+            # print(item)
+
+            # m = p.match(item)
+            # print(m.group())
+            # i = m.group()
+            # iqArray = re.split('(?<=[0-9])(?=[a-zA-Z])' , i)
+            # print(iqArray)
+
+
+
+
+            # soup = BeautifulSoup(itemData, 'html.parser')  # Parsing content using beautifulsoup
+            # item = soup.li.a['title']
+            # print(item)
+            # if (m.group().isdigit()):
+            #     quantity = itemData
+            #     item = itemData[(x+1)].get('title')
+            # else:
+            #     quantity = 1
+            #     item = itemData[(x)].get('title')
+            # print(quantity + " x " + item)
         # print(requiredItems)
         print("\n")
     # print(links)
@@ -52,14 +94,23 @@ def main():
     print("Finished")
 
 
+def containsNumber(value):
+    for character in value:
+        if character.isdigit():
+            return True
+    return False
 
 
 
 
 
-
-def addToItemList(item):
-    print("count")
+# def addToItemList(item, quantity):
+#     freq = {}
+#     for item in myList:
+#         if (item in freq):
+#             freq[item] += quantity
+#         else:
+#             freq[item] = 1
     
 if __name__ == "__main__":
     main()
