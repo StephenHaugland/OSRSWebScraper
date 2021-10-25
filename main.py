@@ -12,6 +12,11 @@ from selenium import webdriver
 
 def main():
     
+    allrequireditems = {
+        "testing": "123"
+    }
+
+
     p = re.compile('^.*?(?= \()') #Regex key to pull out item
     page = requests.get('https://oldschool.runescape.wiki/w/Quests/List') # Get the main HTML page through request
     soup = BeautifulSoup(page.content, 'html.parser') # Parsing content using beautifulsoup
@@ -32,19 +37,14 @@ def main():
         
         requiredItems = soup.select("#mw-content-text > div > table.questdetails.plainlinks > tbody > tr:nth-child(6) > td > div > ul > li")
        
-        print("RequiredItems: ")
+        # print("RequiredItems: ")
         # print(requiredItems)
 
         
         for x in range(len(requiredItems)):
-            
             itemData = requiredItems[x]
 
-            # print("itemData: " )
-            # print(itemData)
-
             string = itemData.get_text()
-            # print(string)
 
             soup2 = BeautifulSoup(str(itemData), 'html.parser')  # Parsing content using beautifulsoup
             item = soup2.find("a")['title']
@@ -53,9 +53,10 @@ def main():
             string = string.split(' ',1)[0]
             if (containsNumber(string)):
                 quantity = string
+                if ("," in quantity):
+                    quantity = re.sub(",","",string)
+
                 print("Quantity: " + quantity)
-                
-                
                 print("Item: " + item)              
 
             # If only one of the item is required
@@ -64,36 +65,25 @@ def main():
                 print("Quantity: 1")
                 print("Item: " + item)
 
+            addiqpair(item,int(quantity),allrequireditems)
 
-
-
-            # print(item)
-
-            # m = p.match(item)
-            # print(m.group())
-            # i = m.group()
-            # iqArray = re.split('(?<=[0-9])(?=[a-zA-Z])' , i)
-            # print(iqArray)
-
-
-
-
-            # soup = BeautifulSoup(itemData, 'html.parser')  # Parsing content using beautifulsoup
-            # item = soup.li.a['title']
-            # print(item)
-            # if (m.group().isdigit()):
-            #     quantity = itemData
-            #     item = itemData[(x+1)].get('title')
-            # else:
-            #     quantity = 1
-            #     item = itemData[(x)].get('title')
-            # print(quantity + " x " + item)
-        # print(requiredItems)
+           
         print("\n")
     # print(links)
 
-    print("Finished")
+    print("Finished\n")
 
+    print(allrequireditems)
+
+
+def addiqpair(i,q, dictionary):
+    # item is already in dictionary
+    if (dictionary.get(i)):
+        currentquantity = int(dictionary[i])
+        q += currentquantity
+
+    # item in NOT already in dictionary
+    dictionary.update({i:q})
 
 def containsNumber(value):
     for character in value:
