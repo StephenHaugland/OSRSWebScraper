@@ -22,7 +22,11 @@ def main():
     page = requests.get('https://oldschool.runescape.wiki/w/Quests/List') # Get the main HTML page through request
     soup = BeautifulSoup(page.content, 'html.parser') # Parsing content using beautifulsoup
     links = soup.select("#mw-content-text > div > table:nth-child(6) tbody tr td:nth-of-type(2) a") # retrieve individual quest page links
-    
+    #mw-content-text > div > table:nth-child(6)
+    #mw-content-text > div > table:nth-child(11)
+
+
+
     for quest in links:
         relativeURL = quest.get('href')
        
@@ -60,16 +64,17 @@ def main():
             addiqpair(item,int(quantity),allrequireditems)
            
         print("\n")
-    # print(links)
 
-    print("Finished\n")
+    # print("Finished\n")
 
     print(allrequireditems)
 
-    df = pd.DataFrame(data=allrequireditems, index=[0])
-    df = (df.T)
-    print (df)
-    df.to_excel('AllRequiredQuestItems.xlsx')
+
+    #EXCEL OUTPUT
+    # df = pd.DataFrame(data=allrequireditems, index=[0])
+    # df = (df.T)
+    # print (df)
+    # df.to_excel('AllRequiredQuestItems.xlsx')
 
 
 def addiqpair(i,q, dictionary):
