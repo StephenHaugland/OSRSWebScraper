@@ -7,15 +7,16 @@ import requests
 import re
 from bs4 import BeautifulSoup
 from selenium import webdriver
+import pandas as pd
 
 
 
 def main():
     
+    # Main dictionary to hold all required quest items
     allrequireditems = {
-        "testing": "123"
+        
     }
-
 
     p = re.compile('^.*?(?= \()') #Regex key to pull out item
     page = requests.get('https://oldschool.runescape.wiki/w/Quests/List') # Get the main HTML page through request
@@ -27,9 +28,6 @@ def main():
        
         print(relativeURL) #display innerText of each quest name
         questURL = "https://oldschool.runescape.wiki" + relativeURL
-
-        ## CHANGE BACK TO LINE ABOVE ONCE TESTING IS COMPLETE
-        # questURL = "https://oldschool.runescape.wiki" + "/w/Doric%27s_Quest"
 
         questPage = requests.get(questURL)
        
@@ -43,30 +41,23 @@ def main():
         
         for x in range(len(requiredItems)):
             itemData = requiredItems[x]
-
             string = itemData.get_text()
-
             soup2 = BeautifulSoup(str(itemData), 'html.parser')  # Parsing content using beautifulsoup
             item = soup2.find("a")['title']
-
             # If multiple of the same item are required
             string = string.split(' ',1)[0]
             if (containsNumber(string)):
                 quantity = string
                 if ("," in quantity):
                     quantity = re.sub(",","",string)
-
                 print("Quantity: " + quantity)
                 print("Item: " + item)              
-
             # If only one of the item is required
             else:
                 quantity = 1
                 print("Quantity: 1")
                 print("Item: " + item)
-
             addiqpair(item,int(quantity),allrequireditems)
-
            
         print("\n")
     # print(links)
@@ -74,6 +65,11 @@ def main():
     print("Finished\n")
 
     print(allrequireditems)
+
+    df = pd.DataFrame(data=allrequireditems, index=[0])
+    df = (df.T)
+    print (df)
+    df.to_excel('AllRequiredQuestItems.xlsx')
 
 
 def addiqpair(i,q, dictionary):
@@ -90,28 +86,11 @@ def containsNumber(value):
         if character.isdigit():
             return True
     return False
-
-
-
-
-
-# def addToItemList(item, quantity):
-#     freq = {}
-#     for item in myList:
-#         if (item in freq):
-#             freq[item] += quantity
-#         else:
-#             freq[item] = 1
     
 if __name__ == "__main__":
     main()
 
 
-
-    # links = soup.select("table tbody tr rd.data-sort-value")
-    # first10 = links[:10] #keep first 10 quest names
-    # for quest in first10:
-    #     print(quest.text) #display innerText of each quest name
 
 # def setup():
 #     websiteURL ="https://oldschool.runescape.wiki/w/Quests/List"
