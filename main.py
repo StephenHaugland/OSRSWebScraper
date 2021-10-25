@@ -50,8 +50,9 @@ def main():
             item = soup2.find("a")['title']
 
             # If multiple of the same item are required
+            string = string.split(' ',1)[0]
             if (containsNumber(string)):
-                quantity = string.split(' ',1)[0]
+                quantity = string
                 print("Quantity: " + quantity)
                 
                 
